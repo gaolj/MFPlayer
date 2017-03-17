@@ -7,6 +7,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 
 #include "Player.h"
+#include <fstream>
 
 PCWSTR szTitle = L"BasicPlayback";
 PCWSTR szWindowClass = L"MFBASICPLAYBACK";
@@ -176,6 +177,7 @@ void OnFileOpen(HWND hwnd)
     IFileOpenDialog *pFileOpen = NULL;
     IShellItem *pItem = NULL;
     PWSTR pszFilePath = NULL;
+	std::ifstream is;
 
     // Create the FileOpenDialog object.
     HRESULT hr = CoCreateInstance(__uuidof(FileOpenDialog), NULL, 
@@ -212,7 +214,21 @@ void OnFileOpen(HWND hwnd)
     }
 
     // Display the file name to the user.
-    hr = g_pPlayer->OpenURL(pszFilePath);
+	LONGLONG size = 0;
+	PBYTE pbMem;
+	is.open(pszFilePath, std::ofstream::binary);
+	if (is) {
+		is.seekg(0, is.end);
+		size = is.tellg();
+		is.seekg(0, is.beg);
+
+		//pbMem = std::make_shared<std::vector<char>>(uliSize);
+		pbMem = new BYTE[size];
+		is.read((char*)pbMem, size);
+		//is.read(pbMem->data(), uliSize);
+		is.close();
+	}
+	hr = g_pPlayer->OpenMem(pbMem, size);
     if (SUCCEEDED(hr))
     {
         UpdateUI(hwnd, OpenPending);

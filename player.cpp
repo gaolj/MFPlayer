@@ -8,6 +8,7 @@
 
 #include "Player.h"
 #include <assert.h>
+#include "common.h"
 
 #pragma comment(lib, "shlwapi")
 
@@ -32,6 +33,8 @@ HRESULT GetEventObject(IMFMediaEvent *pEvent, Q **ppObject)
     }
     return hr;
 }
+
+HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource);
 
 HRESULT CreateMediaSource(PCWSTR pszURL, IMFMediaSource **ppSource);
 
@@ -139,6 +142,52 @@ ULONG CPlayer::Release()
         delete this;
     }
     return uCount;
+}
+
+HRESULT CPlayer::OpenMem(const BYTE *pBuf, const int len)
+{
+	IMFTopology *pTopology = NULL;
+	IMFPresentationDescriptor* pSourcePD = NULL;
+
+	HRESULT hr = CreateSession();
+	if (FAILED(hr))
+		goto done;
+
+	IStream* pStream= SHCreateMemStream(pBuf, len);
+	if (!pStream)
+		goto done;
+	pStream->AddRef();
+	IMFByteStream *pByteStream;
+	hr = MFCreateMFByteStreamOnStream(pStream, &pByteStream);
+	if (FAILED(hr))
+		goto done;
+	pByteStream->AddRef();
+
+	hr = CreateMediaSource(pByteStream, &m_pSource);
+	if (FAILED(hr))
+		goto done;
+
+	hr = m_pSource->CreatePresentationDescriptor(&pSourcePD);
+	if (FAILED(hr))
+		goto done;
+
+	hr = CreatePlaybackTopology(m_pSource, pSourcePD, m_hwndVideo, &pTopology);
+	if (FAILED(hr))
+		goto done;
+
+	hr = m_pSession->SetTopology(0, pTopology);
+	if (FAILED(hr))
+		goto done;
+
+	m_state = OpenPending;
+
+done:
+	if (FAILED(hr))
+		m_state = Closed;
+
+	SafeRelease(&pSourcePD);
+	SafeRelease(&pTopology);
+	return hr;
 }
 
 //  Open a URL for playback.
@@ -924,3 +973,51 @@ done:
     SafeRelease(&pTopology);
     return hr;
 }
+
+HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource)
+{
+	MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
+	pByteStream->set
+
+	IMFSourceResolver* pSourceResolver = NULL;
+	IUnknown* pSource = NULL;
+
+	// Create the source resolver.
+	HRESULT hr = MFCreateSourceResolver(&pSourceResolver);
+	if (FAILED(hr))
+		goto done;
+
+	PROPVARIANT var;
+	PropVariantInit(&var);
+	var.vt = VT_BOOL;
+	var.boolVal = VARIANT_TRUE;
+
+	IPropertyStore *propstore;
+	hr = PSCreateMemoryPropertyStore(IID_PPV_ARGS(&propstore));
+	if (FAILED(hr))
+		goto done;
+	propstore->SetValue(MFPKEY_ASFMediaSource_ApproxSeek, var);
+	//propstore->SetValue(MFPKEY_ASFMediaSource_ApproxSeek, var);
+
+	hr = pSourceResolver->CreateObjectFromByteStream(
+		pByteStream,
+		NULL,
+		MF_RESOLUTION_BYTESTREAM,	// MF_RESOLUTION_MEDIASOURCE
+		propstore,
+		&ObjectType,
+		&pSource
+	);
+	if (FAILED(hr))
+		goto done;
+	MF_E_UNSUPPORTED_BYTESTREAM_TYPE;	// 0xC00D36C4
+
+	// Get the IMFMediaSource interface from the media source.
+	hr = pSource->QueryInterface(IID_PPV_ARGS(ppSource));
+
+done:
+	SafeRelease(&pSourceResolver);
+	SafeRelease(&pSource);
+	return hr;
+}
+
+

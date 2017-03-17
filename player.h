@@ -67,7 +67,8 @@ public:
     STDMETHODIMP  Invoke(IMFAsyncResult* pAsyncResult);
 
     // Playback
-    HRESULT       OpenURL(const WCHAR *sURL);
+	HRESULT       OpenMem(const BYTE *pBuf, const int len);
+	HRESULT       OpenURL(const WCHAR *sURL);
     HRESULT       Play();
     HRESULT       Pause();
     HRESULT       Stop();
