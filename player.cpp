@@ -34,13 +34,6 @@ HRESULT GetEventObject(IMFMediaEvent *pEvent, Q **ppObject)
     return hr;
 }
 
-HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource);
-
-HRESULT CreateMediaSource(PCWSTR pszURL, IMFMediaSource **ppSource);
-
-HRESULT CreatePlaybackTopology(IMFMediaSource *pSource, 
-    IMFPresentationDescriptor *pPD, HWND hVideoWnd,IMFTopology **ppTopology);
-
 //  Static class method to create the CPlayer object.
 
 HRESULT CPlayer::CreateInstance(
@@ -153,10 +146,30 @@ HRESULT CPlayer::OpenMem(const BYTE *pBuf, const int len)
 	if (FAILED(hr))
 		goto done;
 
-	IStream* pStream= SHCreateMemStream(pBuf, len);
+	IMFByteStream* stream = NULL;
+	CHECK_HR(hr = MFCreateFile(
+		MF_ACCESSMODE_READ,
+		MF_OPENMODE_FAIL_IF_NOT_EXIST,
+		MF_FILEFLAGS_NONE,
+		L"d:\\test.wmv",
+		&stream
+	));
+
+	//IMFAttributes* spAttributes;
+	//hr = stream->QueryInterface(__uuidof(IMFAttributes), (LPVOID*)&spAttributes);
+	//GUID guidValue = GUID_NULL;
+	//hr = spAttributes->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+	//hr = spAttributes->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_WMV3);
+	//hr = spAttributes->GetGUID(MF_MT_MAJOR_TYPE, &guidValue);
+	//hr = spAttributes->GetGUID(MF_MT_SUBTYPE, &guidValue);
+
+	//WCHAR ctype[128] = {};
+	//hr = spAttributes->SetString(MF_BYTESTREAM_CONTENT_TYPE, L"video/x-ms-wmv");	
+	//spAttributes->GetString(MF_BYTESTREAM_CONTENT_TYPE, ctype, _countof(ctype), nullptr);
+
+	IStream* pStream = SHCreateMemStream(pBuf, len);
 	if (!pStream)
 		goto done;
-	pStream->AddRef();
 	IMFByteStream *pByteStream;
 	hr = MFCreateMFByteStreamOnStream(pStream, &pByteStream);
 	if (FAILED(hr))
@@ -977,7 +990,6 @@ done:
 HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource)
 {
 	MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
-	pByteStream->set
 
 	IMFSourceResolver* pSourceResolver = NULL;
 	IUnknown* pSource = NULL;
@@ -987,29 +999,16 @@ HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource)
 	if (FAILED(hr))
 		goto done;
 
-	PROPVARIANT var;
-	PropVariantInit(&var);
-	var.vt = VT_BOOL;
-	var.boolVal = VARIANT_TRUE;
-
-	IPropertyStore *propstore;
-	hr = PSCreateMemoryPropertyStore(IID_PPV_ARGS(&propstore));
-	if (FAILED(hr))
-		goto done;
-	propstore->SetValue(MFPKEY_ASFMediaSource_ApproxSeek, var);
-	//propstore->SetValue(MFPKEY_ASFMediaSource_ApproxSeek, var);
-
 	hr = pSourceResolver->CreateObjectFromByteStream(
 		pByteStream,
+		L"a.wmv",
+		MF_RESOLUTION_MEDIASOURCE,	// MF_RESOLUTION_MEDIASOURCE	MF_RESOLUTION_BYTESTREAM
 		NULL,
-		MF_RESOLUTION_BYTESTREAM,	// MF_RESOLUTION_MEDIASOURCE
-		propstore,
 		&ObjectType,
 		&pSource
 	);
 	if (FAILED(hr))
 		goto done;
-	MF_E_UNSUPPORTED_BYTESTREAM_TYPE;	// 0xC00D36C4
 
 	// Get the IMFMediaSource interface from the media source.
 	hr = pSource->QueryInterface(IID_PPV_ARGS(ppSource));

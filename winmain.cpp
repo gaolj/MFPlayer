@@ -8,13 +8,15 @@
 
 #include "Player.h"
 #include <fstream>
+#include "Playlist.h"
 
 PCWSTR szTitle = L"BasicPlayback";
 PCWSTR szWindowClass = L"MFBASICPLAYBACK";
 
 HINSTANCE   g_hInstance;                        // current instance
 BOOL        g_bRepaintClient = TRUE;            // Repaint the application client area?
-CPlayer     *g_pPlayer = NULL;                  // Global player object. 
+//CPlayer     *g_pPlayer = NULL;                  // Global player object. 
+CPlaylist     *g_pPlayer = NULL;                  // Global player object. 
 
 // Note: After WM_CREATE is processed, g_pPlayer remains valid until the
 // window is destroyed.
@@ -228,8 +230,12 @@ void OnFileOpen(HWND hwnd)
 		//is.read(pbMem->data(), uliSize);
 		is.close();
 	}
-	hr = g_pPlayer->OpenMem(pbMem, size);
-    if (SUCCEEDED(hr))
+	//hr = g_pPlayer->OpenMem(pbMem, size);
+	hr = g_pPlayer->AddToPlaylist(L"d:\\test1.wmv");
+	hr = g_pPlayer->AddToPlaylist(L"d:\\test2.wmv");
+	hr = g_pPlayer->AddToPlaylist(L"d:\\test3.wmv");
+	g_pPlayer->SkipTo(0);
+	if (SUCCEEDED(hr))
     {
         UpdateUI(hwnd, OpenPending);
     }
@@ -281,9 +287,9 @@ void OnOpenURL(HWND hwnd)
 //  Handler for WM_CREATE message.
 LRESULT OnCreateWindow(HWND hwnd)
 {
-    // Initialize the player object.
-    HRESULT hr = CPlayer::CreateInstance(hwnd, hwnd, &g_pPlayer); 
-    if (SUCCEEDED(hr))
+    HRESULT hr = CPlaylist::CreateInstance(hwnd, &g_pPlayer);
+	//HRESULT hr = CPlayer::CreateInstance(hwnd, hwnd, &g_pPlayer);
+	if (SUCCEEDED(hr))
     {
         UpdateUI(hwnd, Closed);
         return 0;   // Success.

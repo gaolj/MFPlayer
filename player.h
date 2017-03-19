@@ -119,4 +119,14 @@ protected:
     HANDLE                  m_hCloseEvent;      // Event to wait on while closing.
 };
 
+template <class Q>
+HRESULT GetEventObject(IMFMediaEvent *pEvent, Q **ppObject);
+
+HRESULT CreateMediaSource(IMFByteStream *pByteStream, IMFMediaSource **ppSource);
+
+HRESULT CreateMediaSource(PCWSTR pszURL, IMFMediaSource **ppSource);
+
+HRESULT CreatePlaybackTopology(IMFMediaSource *pSource,
+	IMFPresentationDescriptor *pPD, HWND hVideoWnd, IMFTopology **ppTopology);
+
 #endif PLAYER_H
