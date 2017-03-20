@@ -216,24 +216,24 @@ void OnFileOpen(HWND hwnd)
     }
 
     // Display the file name to the user.
-	LONGLONG size = 0;
-	PBYTE pbMem;
-	is.open(pszFilePath, std::ofstream::binary);
-	if (is) {
-		is.seekg(0, is.end);
-		size = is.tellg();
-		is.seekg(0, is.beg);
+	//LONGLONG size = 0;
+	//PBYTE pbMem;
+	//is.open(pszFilePath, std::ofstream::binary);
+	//if (is) {
+	//	is.seekg(0, is.end);
+	//	size = is.tellg();
+	//	is.seekg(0, is.beg);
 
-		//pbMem = std::make_shared<std::vector<char>>(uliSize);
-		pbMem = new BYTE[size];
-		is.read((char*)pbMem, size);
-		//is.read(pbMem->data(), uliSize);
-		is.close();
-	}
+	//	//pbMem = std::make_shared<std::vector<char>>(uliSize);
+	//	pbMem = new BYTE[size];
+	//	is.read((char*)pbMem, size);
+	//	//is.read(pbMem->data(), uliSize);
+	//	is.close();
+	//}
 	//hr = g_pPlayer->OpenMem(pbMem, size);
-	hr = g_pPlayer->AddToPlaylist(L"d:\\test1.wmv");
+	hr = g_pPlayer->AddToPlaylist(L"d:\\test1.avi");
 	hr = g_pPlayer->AddToPlaylist(L"d:\\test2.wmv");
-	hr = g_pPlayer->AddToPlaylist(L"d:\\test3.wmv");
+	//hr = g_pPlayer->AddToPlaylist(L"d:\\test3.wmv");
 	g_pPlayer->SkipTo(0);
 	if (SUCCEEDED(hr))
     {

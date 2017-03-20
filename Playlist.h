@@ -11,7 +11,8 @@ class CPlaylist : public CPlayer
 private:
 	IMFSequencerSource     *m_pSequencerSource;
 	IMFPresentationClock   *m_pPresentationClock;
-
+	IMFPresentationDescriptor *m_pFirstPD;
+	IMFTopology *m_pFirstTopology;
 	MFTIME      m_PresentationTimeOffset;
 	DWORD       m_ActiveSegment;
 	LONGLONG    m_hnsSegmentDuration;
@@ -36,6 +37,7 @@ private:
 	HRESULT OnSessionEvent(IMFMediaEvent *pEvent, MediaEventType meType);
 	HRESULT OnTopologyStatus(IMFMediaEvent *pEvent);
 	HRESULT OnNewPresentation(IMFMediaEvent *pEvent);
+	HRESULT OnPresentationEnded(IMFMediaEvent *pEvent);
 	HRESULT AddSegment(PCWSTR pszURL);
 	HRESULT QueueNextSegment(IMFPresentationDescriptor *pPD);
 

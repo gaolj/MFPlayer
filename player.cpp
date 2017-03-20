@@ -146,14 +146,14 @@ HRESULT CPlayer::OpenMem(const BYTE *pBuf, const int len)
 	if (FAILED(hr))
 		goto done;
 
-	IMFByteStream* stream = NULL;
-	CHECK_HR(hr = MFCreateFile(
-		MF_ACCESSMODE_READ,
-		MF_OPENMODE_FAIL_IF_NOT_EXIST,
-		MF_FILEFLAGS_NONE,
-		L"d:\\test.wmv",
-		&stream
-	));
+	//IMFByteStream* stream = NULL;
+	//CHECK_HR(hr = MFCreateFile(
+	//	MF_ACCESSMODE_READ,
+	//	MF_OPENMODE_FAIL_IF_NOT_EXIST,
+	//	MF_FILEFLAGS_NONE,
+	//	L"d:\\test.wmv",
+	//	&stream
+	//));
 
 	//IMFAttributes* spAttributes;
 	//hr = stream->QueryInterface(__uuidof(IMFAttributes), (LPVOID*)&spAttributes);
@@ -1018,5 +1018,6 @@ done:
 	SafeRelease(&pSource);
 	return hr;
 }
+
 
 
