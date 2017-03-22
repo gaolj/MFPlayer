@@ -228,7 +228,7 @@ void OnFileOpen(HWND hwnd)
 		//is.read(pbMem->data(), uliSize);
 		is.close();
 	}
-	hr = g_pPlayer->OpenMem(pbMem, size);
+	hr = g_pPlayer->OpenMem(pszFilePath, pbMem, size);
     if (SUCCEEDED(hr))
     {
         UpdateUI(hwnd, OpenPending);
